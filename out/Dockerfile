@@ -35,7 +35,7 @@ ENV PICOPATH /gopath/src/github.com/awalterschulze/picolang
 
 RUN mkdir -p $PICOPATH
 RUN git clone https://github.com/awalterschulze/picolang $PICOPATH && \
-	(cd $PICOPATH && git checkout 5a1fcf3a142d1cb994859614404e1dfb8bc055a5)
+	(cd $PICOPATH && git checkout 0d75eba5a399920790ac496087aa89dbfde7ab43)
 
 ENV SERVICEPATH /gopath/src/picoservice
 RUN mkdir -p $SERVICEPATH
