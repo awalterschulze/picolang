@@ -11,12 +11,12 @@ build:
 	docker build -t pico-docker .
 
 run:
-	{{range .}}docker rm pico-{{.Name}}-container | true
+	{{range .}}docker rm pico-{{.Name}}-container || true
 	docker run -d -t -p {{.Port}}:8080 --name pico-{{.Name}}-container pico-docker picoservice {{.Name}}
 	{{end}}docker ps
 
 stop:
-	{{range .}}docker kill pico-{{.Name}}-container | true	
+	{{range .}}docker kill pico-{{.Name}}-container || true	
 	{{end}}docker ps
 
 boot2docker-start:
