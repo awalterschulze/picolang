@@ -15,7 +15,11 @@ func main() {
 	fun.Register("map", "192.168.59.103:8082")
 	fun.Register("reduce", "192.168.59.103:8083")
 	
-	c, err := fun.Call("reduce","add", 0.000000, []interface{}{1.000000, 2.000000, 3.000000, 4.000000})
+	b, err := fun.Call("map","inc", []interface{}{1.000000, 2.000000, 3.000000, 4.000000})
+if err != nil {
+		panic(err)
+	}
+	c, err := fun.Call("reduce","add", 0.000000, b)
 if err != nil {
 		panic(err)
 	}

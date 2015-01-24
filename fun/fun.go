@@ -60,7 +60,6 @@ func addStackError(params *Params, funName string) *Params {
 }
 
 func paramsToValues(params *Params) []reflect.Value {
-	log.Printf("%#v", params)
 	values := make([]reflect.Value, len(params.Params))
 	for i := range params.Params {
 		values[i] = reflect.ValueOf(params.Params[i])
