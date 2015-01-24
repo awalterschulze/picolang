@@ -15,40 +15,35 @@
 package main
 
 import (
-	"fmt"
-	"github.com/awalterschulze/picolang/fun"
-	"github.com/awalterschulze/picolang/funcs"
-	"time"
+	"bytes"
+	"github.com/awalterschulze/picolang/gen"
+	"io/ioutil"
+	"sort"
 )
 
 func main() {
-	logAddr := "127.0.0.1:8080"
-	mapAddr := "127.0.0.1:8082"
-	incAddr := "127.0.0.1:8083"
-	fun.Register("log", logAddr)
-	fun.Register("map", mapAddr)
-	fun.Register("inc", incAddr)
-	go func() {
-		if err := fun.Serve(logAddr, "log", funcs.Log); err != nil {
-			panic(err)
-		}
-	}()
-	go func() {
-		if err := fun.Serve(incAddr, "inc", funcs.Inc); err != nil {
-			panic(err)
-		}
-	}()
-	go func() {
-		if err := fun.Serve(mapAddr, "map", funcs.Map); err != nil {
-			panic(err)
-		}
-	}()
-	time.Sleep(time.Second)
-	addout, err := fun.Call("map", "inc", []float64{1, 2})
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		return
+	myfuncs := map[string]string{
+		"inc": "github.com/awalterschulze/picolang/funcs.Inc",
+		"map": "github.com/awalterschulze/picolang/funcs.Map",
+		"log": "github.com/awalterschulze/picolang/funcs.Log",
 	}
-	outs, err := fun.Call("log", addout...)
-	fmt.Printf("output %#v %#v\n", outs, err)
+	gobuf := bytes.NewBuffer(nil)
+	if err := gen.Go(myfuncs, gobuf); err != nil {
+		panic(err)
+	}
+	if err := ioutil.WriteFile("./out/picoservice.go", gobuf.Bytes(), 0777); err != nil {
+		panic(err)
+	}
+	names := make([]string, 0, len(myfuncs))
+	for name, _ := range myfuncs {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	makebuf := bytes.NewBuffer(nil)
+	if err := gen.Makefile(names, makebuf); err != nil {
+		panic(err)
+	}
+	if err := ioutil.WriteFile("./out/Makefile", makebuf.Bytes(), 0777); err != nil {
+		panic(err)
+	}
 }
