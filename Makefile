@@ -1,5 +1,7 @@
 build:
-	go install .
+	(cd lang && gocc lang.bnf)
+	rm ./out/main.go || true
+	go install ./...
 	picolang
 	(cd out && make stop && make build && make run)
 

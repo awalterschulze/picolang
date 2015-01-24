@@ -17,16 +17,43 @@ package main
 import (
 	"bytes"
 	"github.com/awalterschulze/picolang/gen"
+	"github.com/awalterschulze/picolang/lang"
+	"github.com/awalterschulze/picolang/lang/ast"
 	"io/ioutil"
 	"sort"
 )
 
+var langStr = `
+import map "github.com/awalterschulze/picolang/funcs.Map"
+		import inc "github.com/awalterschulze/picolang/funcs.Inc"
+
+	let a = inc(2)
+
+	println(a)
+
+	let c = map(inc, {2.3, 4})
+
+	println(c)
+`
+
 func main() {
-	myfuncs := map[string]string{
-		"inc":    "github.com/awalterschulze/picolang/funcs.Inc",
-		"map":    "github.com/awalterschulze/picolang/funcs.Map",
-		"log":    "github.com/awalterschulze/picolang/funcs.Log",
-		"double": "github.com/awalterschulze/picolang/funcs.Double",
+	statements, err := lang.Parse(langStr)
+	if err != nil {
+		panic(err)
+	}
+	myfuncs := map[string]string{}
+	notimports := []ast.Statement{}
+	imports := []*ast.Import{}
+	for _, statement := range statements {
+		if imp, ok := statement.(*ast.Import); ok {
+			imports = append(imports, imp)
+			myfuncs[imp.Name] = imp.Path
+		} else {
+			notimports = append(notimports, statement)
+		}
+	}
+	for _, notimport := range notimports {
+		notimport.SetImports(imports)
 	}
 	gobuf := bytes.NewBuffer(nil)
 	if err := gen.Go(myfuncs, gobuf); err != nil {
@@ -45,6 +72,13 @@ func main() {
 		panic(err)
 	}
 	if err := ioutil.WriteFile("./out/Makefile", makebuf.Bytes(), 0777); err != nil {
+		panic(err)
+	}
+	mainbuf := bytes.NewBuffer(nil)
+	if err := gen.Mainfile("192.168.59.103", names, notimports, mainbuf); err != nil {
+		panic(err)
+	}
+	if err := ioutil.WriteFile("./out/main.go", mainbuf.Bytes(), 0777); err != nil {
 		panic(err)
 	}
 }
