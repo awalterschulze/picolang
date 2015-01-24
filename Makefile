@@ -2,11 +2,14 @@ build:
 	(cd lang && gocc lang.bnf)
 	rm ./out/main.go || true
 	go install ./...
-	picolang
-	(cd out && make stop && make build && make run)
+	picolang -ip="192.168.59.103" -o="./out/" incandmap.pico
+	(cd out && make build)
 
 run:
-	(cd out && go run main.go)
+	(cd out && make run)
 
 test:
 	go test -v ./...
+
+stop:
+	(cd out && make stop)

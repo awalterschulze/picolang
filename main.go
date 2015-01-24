@@ -15,21 +15,20 @@
 package main
 
 import (
+	"flag"
 	"github.com/awalterschulze/picolang/compile"
+	"io/ioutil"
+	"log"
 )
 
+var ip = flag.String("ip", "127.0.0.1", "ip where dockers will be deployed")
+var out = flag.String("o", "./out/", "folder where Dockerfile is and generated code should code")
+
 func main() {
-	var langStr = `
-import map "github.com/awalterschulze/picolang/funcs.Map"
-		import inc "github.com/awalterschulze/picolang/funcs.Inc"
-
-	let a = inc(2)
-
-	println(a)
-
-	let c = map(inc, {2.3, 4})
-
-	println(c)
-`
-	compile.Compile(langStr, "./out/", "192.168.59.103")
+	flag.Parse()
+	data, err := ioutil.ReadFile(flag.Args()[0])
+	if err != nil {
+		log.Fatal(err)
+	}
+	compile.Compile(string(data), *out, *ip)
 }

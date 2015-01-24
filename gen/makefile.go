@@ -10,10 +10,16 @@ var makeTemplateString = `
 build:
 	docker build -t pico-docker .
 
-run:
+delete:
 	{{range .}}docker rm pico-{{.Name}}-container || true
-	docker run -d -t -p {{.Port}}:8080 --name pico-{{.Name}}-container pico-docker picoservice {{.Name}}
 	{{end}}docker ps
+
+run:
+	make delete
+	{{range .}}docker run -d -t -p {{.Port}}:8080 --name pico-{{.Name}}-container pico-docker picoservice {{.Name}}
+	{{end}}docker ps
+	go run main.go
+	make stop
 
 stop:
 	{{range .}}docker kill pico-{{.Name}}-container || true	
