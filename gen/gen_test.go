@@ -15,7 +15,7 @@ func TestGen(t *testing.T) {
 		"map": "github.com/awalterschulze/picolang/funcs.Map",
 	}
 	buf := bytes.NewBuffer(nil)
-	err := Go(funcs, buf)
+	err := Go(funcs, "127.0.0.1", buf)
 	if err != nil {
 		t.Error(err)
 	}
