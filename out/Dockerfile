@@ -34,9 +34,8 @@ RUN mkdir $GOPATH
 ENV PICOPATH /gopath/src/github.com/awalterschulze/picolang
 
 RUN mkdir -p $PICOPATH
-RUN git clone https://github.com/awalterschulze/picolang $PICOPATH
-
-RUN (cd $PICOPATH && go install ./...)
+RUN git clone https://github.com/awalterschulze/picolang $PICOPATH && \
+	(cd $PICOPATH && git checkout 2a2580c1e982d6982db03f8901a90236a6d9f2f9)
 
 ENV SERVICEPATH /gopath/src/picoservice
 RUN mkdir -p $SERVICEPATH

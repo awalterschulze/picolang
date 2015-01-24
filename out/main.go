@@ -7,9 +7,15 @@ import (
 )
 
 func main() {
-	fun.Register("inc", "192.168.59.103:8080")
-	fun.Register("log", "192.168.59.103:8081")
-	fun.Register("map", "192.168.59.103:8082")
+	fun.Register("double", "192.168.59.103:8080")
+	fun.Register("inc", "192.168.59.103:8081")
+	fun.Register("log", "192.168.59.103:8082")
+	fun.Register("map", "192.168.59.103:8083")
+	doubled, err := fun.Call("double", float64(4))
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("doubled %#v\n", doubled)
 	inced, err := fun.Call("inc", float64(1))
 	if err != nil {
 		panic(err)

@@ -22,13 +22,13 @@ func main() {
 	name := os.Args[1]
 	addr := *ip + ":" + *port
 	
-	fun.Register("double", ":8080")
+	fun.Register("double", "192.168.59.103:8080")
 	
-	fun.Register("inc", ":8081")
+	fun.Register("inc", "192.168.59.103:8081")
 	
-	fun.Register("log", ":8082")
+	fun.Register("log", "192.168.59.103:8082")
 	
-	fun.Register("map", ":8083")
+	fun.Register("map", "192.168.59.103:8083")
 	
 	if err := fun.Serve(addr, name, myfuncs[name]); err != nil {
 		panic(err)

@@ -87,6 +87,6 @@ func newFun(name string, function string, num int) fun {
 	calls := strings.Split(function, "/")
 	call := calls[len(calls)-1]
 	port := strconv.Itoa(8080 + num)
-	addr := ":" + port
+	addr := "192.168.59.103:" + port
 	return fun{Name: name, Function: call, Import: imp, Addr: addr}
 }

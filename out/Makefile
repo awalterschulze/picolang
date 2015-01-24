@@ -14,10 +14,10 @@ run:
 	docker ps
 
 stop:
-	docker kill pico-double-container | true
-	docker kill pico-inc-container | true
-	docker kill pico-log-container | true
-	docker kill pico-map-container | true
+	docker kill pico-double-container | true	
+	docker kill pico-inc-container | true	
+	docker kill pico-log-container | true	
+	docker kill pico-map-container | true	
 	docker ps
 
 boot2docker-start:

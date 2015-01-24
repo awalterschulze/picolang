@@ -16,7 +16,7 @@ run:
 	{{end}}docker ps
 
 stop:
-	{{range .}}docker kill pico-{{.Name}}-container | true
+	{{range .}}docker kill pico-{{.Name}}-container | true	
 	{{end}}docker ps
 
 boot2docker-start:
