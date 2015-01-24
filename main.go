@@ -52,11 +52,11 @@ func main() {
 	}()
 	time.Sleep(time.Second)
 	//addout := call("add", Args(int64(11), int64(2)))
-	addout := fun.Call("map", fun.Args("inc", []float64{1, 2}))
-	if len(addout.StackErr) > 0 {
-		fmt.Printf("Error: %s\n", addout.Error())
+	mapOut, err := fun.CallMeMaybe("map", "inc", []float64{1, 2})
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	outs := fun.Call("log", addout)
-	fmt.Printf("output %#v\n", outs)
+	outs, err := fun.CallMeMaybe("log", mapOut...)
+	fmt.Printf("output %#v %#v\n", outs, err)
 }
