@@ -39,7 +39,7 @@ RUN git clone https://github.com/awalterschulze/picolang $PICOPATH && \
 
 ENV SERVICEPATH /gopath/src/picoservice
 RUN mkdir -p $SERVICEPATH
-ADD picoservice.go $SERVICEPATH/
+ADD ./picoservice/picoservice.go $SERVICEPATH/
 RUN (cd $SERVICEPATH && go install ./...)
 
 EXPOSE 8080

@@ -32,7 +32,7 @@ func main() {
 	if err := gen.Go(myfuncs, gobuf); err != nil {
 		panic(err)
 	}
-	if err := ioutil.WriteFile("./out/picoservice.go", gobuf.Bytes(), 0777); err != nil {
+	if err := ioutil.WriteFile("./out/picoservice/picoservice.go", gobuf.Bytes(), 0777); err != nil {
 		panic(err)
 	}
 	names := make([]string, 0, len(myfuncs))
