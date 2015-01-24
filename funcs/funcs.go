@@ -32,6 +32,10 @@ func Double(i float64) float64 {
 	return i * 2
 }
 
+func Add(i, j float64) float64 {
+	return i + j
+}
+
 func Map(name string, list []interface{}) ([]interface{}, error) {
 	results := make([]interface{}, 0, len(list))
 	for i := 0; i < len(list); i++ {
@@ -47,4 +51,16 @@ func Map(name string, list []interface{}) ([]interface{}, error) {
 		}
 	}
 	return results, nil
+}
+
+func Reduce(name string, initial interface{}, list []interface{}) (interface{}, error) {
+	result := initial
+	var err error
+	for i := 0; i < len(list); i++ {
+		result, err = fun.Call(name, result, list[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
 }
