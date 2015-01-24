@@ -33,19 +33,19 @@ func (this *Params) Error() string {
 	return strings.Join(this.StackErr, "\n")
 }
 
-func NewEncodingError(err error) *Params {
+func newEncodingError(err error) *Params {
 	return &Params{
 		StackErr: []string{"encoding error: " + err.Error()},
 	}
 }
 
-func NewDecodingError(name string, input []byte, err error) *Params {
+func newDecodingError(name string, input []byte, err error) *Params {
 	return &Params{
 		StackErr: []string{"calling " + name + " gave decoding error: " + err.Error() + " given input " + string(input)},
 	}
 }
 
-func Encode(params *Params) []byte {
+func encode(params *Params) []byte {
 	data, err := json.Marshal(params)
 	if err != nil {
 		panic(err)
@@ -53,12 +53,12 @@ func Encode(params *Params) []byte {
 	return data
 }
 
-func AddStackError(params *Params, funName string) *Params {
+func addStackError(params *Params, funName string) *Params {
 	params.StackErr = append(params.StackErr, funName)
 	return params
 }
 
-func ToValues(params *Params) []reflect.Value {
+func paramsToValues(params *Params) []reflect.Value {
 	values := make([]reflect.Value, len(params.Params))
 	for i := range params.Params {
 		values[i] = reflect.ValueOf(params.Params[i])
@@ -66,32 +66,20 @@ func ToValues(params *Params) []reflect.Value {
 	return values
 }
 
-type Error interface {
-	Error() string
-}
+var errTyp = reflect.TypeOf((*error)(nil)).Elem()
 
-var errTyp = reflect.TypeOf((*Error)(nil)).Elem()
-
-func ToParams(values []reflect.Value) *Params {
+func valuesToParams(values []reflect.Value) *Params {
 	params := &Params{Params: make([]interface{}, 0, len(values))}
 	for _, v := range values {
 		i := v.Interface()
 		if v.Type().Implements(errTyp) {
 			if i != nil {
-				params.StackErr = []string{i.(Error).Error()}
+				params.StackErr = []string{i.(error).Error()}
 				return params
 			}
 		} else {
 			params.Params = append(params.Params, i)
 		}
-	}
-	return params
-}
-
-func Args(values ...interface{}) *Params {
-	params := &Params{Params: make([]interface{}, 0, len(values))}
-	for _, v := range values {
-		params.Params = append(params.Params, v)
 	}
 	return params
 }
@@ -102,23 +90,23 @@ func Serve(addr string, name string, fun interface{}) error {
 		paramStr := r.FormValue("params")
 		params := &Params{}
 		if err := json.Unmarshal([]byte(paramStr), params); err != nil {
-			w.Write(Encode(NewEncodingError(err)))
+			w.Write(encode(newEncodingError(err)))
 			return
 		}
 		if len(params.StackErr) > 0 {
-			w.Write(Encode(AddStackError(params, name)))
+			w.Write(encode(addStackError(params, name)))
 			return
 		}
-		w.Write(Encode(ToParams(funValue.Call(ToValues(params)))))
+		w.Write(encode(valuesToParams(funValue.Call(paramsToValues(params)))))
 		return
 	})
 	println("serving " + name + " at " + addr + "/" + name + " ...")
 	return http.ListenAndServe(addr, nil)
 }
 
-func Call(name string, params *Params) *Params {
+func call(name string, params *Params) *Params {
 	addr := funcMap[name]
-	enc := Encode(params)
+	enc := encode(params)
 	values := url.Values{}
 	values.Add("params", string(enc))
 	getUrl := "http://" + addr + "/" + name + "/?" + values.Encode()
@@ -134,22 +122,30 @@ func Call(name string, params *Params) *Params {
 	}
 	outs := &Params{}
 	if err := json.Unmarshal(body, outs); err != nil {
-		return NewDecodingError(getUrl, body, err)
+		return newDecodingError(getUrl, body, err)
 	}
 	return outs
 }
 
-func ToInterfaces(params *Params) ([]interface{}, error) {
+func argsToParams(values ...interface{}) *Params {
+	params := &Params{Params: make([]interface{}, 0, len(values))}
+	for _, v := range values {
+		params.Params = append(params.Params, v)
+	}
+	return params
+}
+
+func toInterfaces(params *Params) ([]interface{}, error) {
 	if len(params.StackErr) > 0 {
 		return params.Params, params
 	}
 	return params.Params, nil
 }
 
-func CallMeMaybe(name string, args ...interface{}) ([]interface{}, error) {
-	params := Args(args...)
-	outs := Call(name, params)
-	return ToInterfaces(outs)
+func Call(name string, args ...interface{}) ([]interface{}, error) {
+	params := argsToParams(args...)
+	outs := call(name, params)
+	return toInterfaces(outs)
 }
 
 var funcMap = map[string]string{}

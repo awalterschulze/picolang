@@ -40,7 +40,7 @@ func Map(name string, list interface{}) (interface{}, error) {
 	l := listValue.Len()
 	results := make([]interface{}, 0, l)
 	for i := 0; i < l; i++ {
-		values, err := fun.CallMeMaybe(name, listValue.Index(i).Interface())
+		values, err := fun.Call(name, listValue.Index(i).Interface())
 		if err != nil {
 			return nil, err
 		}
