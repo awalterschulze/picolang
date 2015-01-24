@@ -18,16 +18,7 @@ import (
 	"fmt"
 	"github.com/awalterschulze/picolang/fun"
 	"reflect"
-	"strings"
 )
-
-type StackErr struct {
-	errs []string
-}
-
-func (this *StackErr) Error() string {
-	return strings.Join(this.errs, "\n")
-}
 
 func Log(s interface{}) {
 	fmt.Printf("%v\n", s)
@@ -49,15 +40,15 @@ func Map(name string, list interface{}) (interface{}, error) {
 	l := listValue.Len()
 	results := make([]interface{}, 0, l)
 	for i := 0; i < l; i++ {
-		params := fun.Call(name, fun.Args(listValue.Index(i).Interface()))
-		if len(params.Error) > 0 {
-			return nil, &StackErr{params.Error}
+		values, err := fun.CallMeMaybe(name, listValue.Index(i).Interface())
+		if err != nil {
+			return nil, err
 		}
-		if len(params.Params) > 1 {
+		if len(values) > 1 {
 			panic("not implemented")
 		}
-		if len(params.Params) == 1 {
-			results = append(results, params.Params[0])
+		if len(values) == 1 {
+			results = append(results, values[0])
 		}
 	}
 	return results, nil

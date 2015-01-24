@@ -21,22 +21,27 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 )
 
 type Params struct {
-	Params []interface{}
-	Error  []string
+	Params   []interface{}
+	StackErr []string
+}
+
+func (this *Params) Error() string {
+	return strings.Join(this.StackErr, "\n")
 }
 
 func NewEncodingError(err error) *Params {
 	return &Params{
-		Error: []string{"encoding error: " + err.Error()},
+		StackErr: []string{"encoding error: " + err.Error()},
 	}
 }
 
 func NewDecodingError(name string, input []byte, err error) *Params {
 	return &Params{
-		Error: []string{"calling " + name + " gave decoding error: " + err.Error() + " given input " + string(input)},
+		StackErr: []string{"calling " + name + " gave decoding error: " + err.Error() + " given input " + string(input)},
 	}
 }
 
@@ -49,7 +54,7 @@ func Encode(params *Params) []byte {
 }
 
 func AddStackError(params *Params, funName string) *Params {
-	params.Error = append(params.Error, funName)
+	params.StackErr = append(params.StackErr, funName)
 	return params
 }
 
@@ -73,7 +78,7 @@ func ToParams(values []reflect.Value) *Params {
 		i := v.Interface()
 		if v.Type().Implements(errTyp) {
 			if i != nil {
-				params.Error = []string{i.(Error).Error()}
+				params.StackErr = []string{i.(Error).Error()}
 				return params
 			}
 		} else {
@@ -100,7 +105,7 @@ func Serve(addr string, name string, fun interface{}) error {
 			w.Write(Encode(NewEncodingError(err)))
 			return
 		}
-		if len(params.Error) > 0 {
+		if len(params.StackErr) > 0 {
 			w.Write(Encode(AddStackError(params, name)))
 			return
 		}
@@ -132,6 +137,19 @@ func Call(name string, params *Params) *Params {
 		return NewDecodingError(getUrl, body, err)
 	}
 	return outs
+}
+
+func ToInterfaces(params *Params) ([]interface{}, error) {
+	if len(params.StackErr) > 0 {
+		return params.Params, params
+	}
+	return params.Params, nil
+}
+
+func CallMeMaybe(name string, args ...interface{}) ([]interface{}, error) {
+	params := Args(args...)
+	outs := Call(name, params)
+	return ToInterfaces(outs)
 }
 
 var funcMap = map[string]string{}
