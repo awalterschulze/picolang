@@ -49,7 +49,7 @@ type Println struct {
 }
 
 func (this *Println) Generate() string {
-	return "fmt.Printf(\"%#v\"," + this.Expr.Generate() + ")"
+	return "fmt.Printf(\"%+v\\n\"," + this.Expr.Generate() + ")"
 }
 
 func (this *Println) SetImports(imps []*Import) {

@@ -71,7 +71,6 @@ var errTyp = reflect.TypeOf((*error)(nil)).Elem()
 func flatten(values []reflect.Value) []reflect.Value {
 	if len(values) == 1 {
 		val := values[0]
-		fmt.Printf("flatten %v\n", val.Kind())
 		if val.Kind() == reflect.Interface {
 			val = values[0].Elem()
 		}
@@ -130,7 +129,6 @@ func call(name string, params *Params) *Params {
 	values := url.Values{}
 	values.Add("params", string(enc))
 	getUrl := "http://" + addr + "/" + name + "/?" + values.Encode()
-	fmt.Printf("getting %s\n", getUrl)
 	resp, err := http.Get(getUrl)
 	if err != nil {
 		panic(err)

@@ -15,12 +15,12 @@
 package funcs
 
 import (
-	"fmt"
 	"github.com/awalterschulze/picolang/fun"
+	"log"
 )
 
 func Log(s ...interface{}) interface{} {
-	fmt.Printf("%v\n", s)
+	log.Printf("%v\n", s)
 	return s
 }
 

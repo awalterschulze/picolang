@@ -15,15 +15,11 @@
 package main
 
 import (
-	"bytes"
-	"github.com/awalterschulze/picolang/gen"
-	"github.com/awalterschulze/picolang/lang"
-	"github.com/awalterschulze/picolang/lang/ast"
-	"io/ioutil"
-	"sort"
+	"github.com/awalterschulze/picolang/compile"
 )
 
-var langStr = `
+func main() {
+	var langStr = `
 import map "github.com/awalterschulze/picolang/funcs.Map"
 		import inc "github.com/awalterschulze/picolang/funcs.Inc"
 
@@ -35,50 +31,5 @@ import map "github.com/awalterschulze/picolang/funcs.Map"
 
 	println(c)
 `
-
-func main() {
-	statements, err := lang.Parse(langStr)
-	if err != nil {
-		panic(err)
-	}
-	myfuncs := map[string]string{}
-	notimports := []ast.Statement{}
-	imports := []*ast.Import{}
-	for _, statement := range statements {
-		if imp, ok := statement.(*ast.Import); ok {
-			imports = append(imports, imp)
-			myfuncs[imp.Name] = imp.Path
-		} else {
-			notimports = append(notimports, statement)
-		}
-	}
-	for _, notimport := range notimports {
-		notimport.SetImports(imports)
-	}
-	gobuf := bytes.NewBuffer(nil)
-	if err := gen.Go(myfuncs, gobuf); err != nil {
-		panic(err)
-	}
-	if err := ioutil.WriteFile("./out/picoservice/picoservice.go", gobuf.Bytes(), 0777); err != nil {
-		panic(err)
-	}
-	names := make([]string, 0, len(myfuncs))
-	for name, _ := range myfuncs {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-	makebuf := bytes.NewBuffer(nil)
-	if err := gen.Makefile(names, makebuf); err != nil {
-		panic(err)
-	}
-	if err := ioutil.WriteFile("./out/Makefile", makebuf.Bytes(), 0777); err != nil {
-		panic(err)
-	}
-	mainbuf := bytes.NewBuffer(nil)
-	if err := gen.Mainfile("192.168.59.103", names, notimports, mainbuf); err != nil {
-		panic(err)
-	}
-	if err := ioutil.WriteFile("./out/main.go", mainbuf.Bytes(), 0777); err != nil {
-		panic(err)
-	}
+	compile.Compile(langStr, "./out/", "192.168.59.103")
 }

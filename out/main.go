@@ -17,12 +17,12 @@ func main() {
 if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%#v",a)
+	fmt.Printf("%+v\n",a)
 	c, err := fun.Call("map","inc", []interface{}{2.300000, 4.000000})
 if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%#v",c)
+	fmt.Printf("%+v\n",c)
 	
 }
 

@@ -49,7 +49,7 @@ type fun struct {
 	Import   string
 }
 
-func Go(funcs map[string]string, w io.Writer) error {
+func Go(funcs map[string]string, ip string, w io.Writer) error {
 	names := make([]string, 0, len(funcs))
 	for name, _ := range funcs {
 		names = append(names, name)
@@ -57,7 +57,7 @@ func Go(funcs map[string]string, w io.Writer) error {
 	sort.Strings(names)
 	funs := make([]fun, len(names))
 	for i, name := range names {
-		funs[i] = newFun(name, funcs[name], i)
+		funs[i] = newFun(name, funcs[name], ip, i)
 	}
 	imports := uniqImports(funs)
 	vars := struct {
@@ -81,12 +81,12 @@ func uniqImports(funs []fun) []string {
 	return uniq
 }
 
-func newFun(name string, function string, num int) fun {
+func newFun(name string, function string, ip string, num int) fun {
 	fs := strings.Split(function, ".")
 	imp := `"` + strings.Join(fs[:len(fs)-1], ".") + `"`
 	calls := strings.Split(function, "/")
 	call := calls[len(calls)-1]
 	port := strconv.Itoa(8080 + num)
-	addr := "192.168.59.103:" + port
+	addr := ip + ":" + port
 	return fun{Name: name, Function: call, Import: imp, Addr: addr}
 }
