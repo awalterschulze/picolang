@@ -22,14 +22,14 @@ import (
 )
 
 var port = flag.String("port", "8080", "")
-var ip = flag.String("ip", "127.0.0.1", "")
+var ip = flag.String("ip", "", "")
 
 var myfuncs = map[string]interface{}{
 {{range .Funcs}}"{{.Name}}":{{.Function}},{{end}}
 }
 
 func main() {
-	name := os.Args[0]
+	name := os.Args[1]
 	addr := *ip + ":" + *port
 	{{range .Funcs}}
 	fun.Register("{{.Name}}", "{{.Addr}}")
@@ -86,7 +86,7 @@ func newFun(name string, function string, num int) fun {
 	imp := `"` + strings.Join(fs[:len(fs)-1], ".") + `"`
 	calls := strings.Split(function, "/")
 	call := calls[len(calls)-1]
-	port := strconv.Itoa(8080)
-	addr := "127.0.0.1:" + port
+	port := strconv.Itoa(8080 + num)
+	addr := ":" + port
 	return fun{Name: name, Function: call, Import: imp, Addr: addr}
 }

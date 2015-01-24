@@ -32,9 +32,11 @@ ENV PATH $PATH:$GOPATH/bin:$GOROOT/bin
 RUN mkdir $GOPATH
 
 ENV PICOPATH /gopath/src/github.com/awalterschulze/picolang
+
 RUN mkdir -p $PICOPATH
-RUN git clone https://github.com/awalterschulze/picolang $PICOPATH && \
-	(cd $PICOPATH && go install ./...)
+RUN git clone https://github.com/awalterschulze/picolang $PICOPATH
+
+RUN (cd $PICOPATH && go install ./...)
 
 ENV SERVICEPATH /gopath/src/picoservice
 RUN mkdir -p $SERVICEPATH

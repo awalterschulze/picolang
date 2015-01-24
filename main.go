@@ -23,9 +23,10 @@ import (
 
 func main() {
 	myfuncs := map[string]string{
-		"inc": "github.com/awalterschulze/picolang/funcs.Inc",
-		"map": "github.com/awalterschulze/picolang/funcs.Map",
-		"log": "github.com/awalterschulze/picolang/funcs.Log",
+		"inc":    "github.com/awalterschulze/picolang/funcs.Inc",
+		"map":    "github.com/awalterschulze/picolang/funcs.Map",
+		"log":    "github.com/awalterschulze/picolang/funcs.Log",
+		"double": "github.com/awalterschulze/picolang/funcs.Double",
 	}
 	gobuf := bytes.NewBuffer(nil)
 	if err := gen.Go(myfuncs, gobuf); err != nil {
