@@ -55,11 +55,15 @@ func Map(name string, list []interface{}) ([]interface{}, error) {
 
 func Reduce(name string, initial interface{}, list []interface{}) (interface{}, error) {
 	result := initial
-	var err error
 	for i := 0; i < len(list); i++ {
-		result, err = fun.Call(name, result, list[i])
+		res, err := fun.Call(name, result, list[i])
 		if err != nil {
 			return nil, err
+		}
+		if len(res) == 1 {
+			result = res[0]
+		} else {
+			panic("not implemented")
 		}
 	}
 	return result, nil

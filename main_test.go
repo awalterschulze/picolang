@@ -32,20 +32,24 @@ func addError(i, j float64) (float64, error) {
 
 func init() {
 	logAddr := "127.0.0.1:8080"
-	addAddr := "127.0.0.1:8081"
+	errAddr := "127.0.0.1:8081"
 	mapAddr := "127.0.0.1:8082"
 	incAddr := "127.0.0.1:8083"
+	reduceAddr := "127.0.0.1:8084"
+	addAddr := "127.0.0.1:8085"
 	fun.Register("log", logAddr)
-	fun.Register("add", addAddr)
+	fun.Register("err", errAddr)
 	fun.Register("map", mapAddr)
 	fun.Register("inc", incAddr)
+	fun.Register("reduce", reduceAddr)
+	fun.Register("add", addAddr)
 	go func() {
 		if err := fun.Serve(logAddr, "log", funcs.Log); err != nil {
 			panic(err)
 		}
 	}()
 	go func() {
-		if err := fun.Serve(addAddr, "add", addError); err != nil {
+		if err := fun.Serve(errAddr, "err", addError); err != nil {
 			panic(err)
 		}
 	}()
@@ -56,6 +60,16 @@ func init() {
 	}()
 	go func() {
 		if err := fun.Serve(mapAddr, "map", funcs.Map); err != nil {
+			panic(err)
+		}
+	}()
+	go func() {
+		if err := fun.Serve(reduceAddr, "reduce", funcs.Reduce); err != nil {
+			panic(err)
+		}
+	}()
+	go func() {
+		if err := fun.Serve(addAddr, "add", funcs.Add); err != nil {
 			panic(err)
 		}
 	}()
@@ -84,10 +98,18 @@ func TestMap(t *testing.T) {
 }
 
 func TestError(t *testing.T) {
-	_, err := fun.Call("add", int64(11), int64(2))
+	_, err := fun.Call("err", int64(11), int64(2))
 	if err == nil {
 		t.Fatal("expected error")
 		return
 	}
 	t.Logf("%v", err)
+}
+
+func TestRecude(t *testing.T) {
+	c, err := fun.Call("reduce", "add", 0.000000, []interface{}{1.000000, 2.000000, 3.000000, 4.000000})
+	if err != nil {
+		panic(err)
+	}
+	t.Logf("%v", c)
 }

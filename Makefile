@@ -13,3 +13,6 @@ test:
 
 stop:
 	(cd out && make stop)
+
+delete:
+	(cd out && make delete)
