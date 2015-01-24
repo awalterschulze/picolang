@@ -17,30 +17,21 @@ package funcs
 import (
 	"fmt"
 	"github.com/awalterschulze/picolang/fun"
-	"reflect"
 )
 
-func Log(s interface{}) {
+func Log(s ...interface{}) interface{} {
 	fmt.Printf("%v\n", s)
+	return s
 }
 
 func Inc(i float64) float64 {
 	return i + 1
 }
 
-func Add(i, j float64) (float64, error) {
-	if i > 10 {
-		return 0, fmt.Errorf("wtf")
-	}
-	return i + j, nil
-}
-
-func Map(name string, list interface{}) (interface{}, error) {
-	listValue := reflect.ValueOf(list)
-	l := listValue.Len()
-	results := make([]interface{}, 0, l)
-	for i := 0; i < l; i++ {
-		values, err := fun.Call(name, listValue.Index(i).Interface())
+func Map(name string, list []interface{}) ([]interface{}, error) {
+	results := make([]interface{}, 0, len(list))
+	for i := 0; i < len(list); i++ {
+		values, err := fun.Call(name, list[i])
 		if err != nil {
 			return nil, err
 		}

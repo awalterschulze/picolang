@@ -68,8 +68,28 @@ func paramsToValues(params *Params) []reflect.Value {
 
 var errTyp = reflect.TypeOf((*error)(nil)).Elem()
 
+func flatten(values []reflect.Value) []reflect.Value {
+	if len(values) == 1 {
+		val := values[0]
+		fmt.Printf("flatten %v\n", val.Kind())
+		if val.Kind() == reflect.Interface {
+			val = values[0].Elem()
+		}
+		if val.Kind() == reflect.Slice {
+			l := val.Len()
+			vals := make([]reflect.Value, l)
+			for i := 0; i < l; i++ {
+				vals[i] = val.Index(i)
+			}
+			values = vals
+		}
+	}
+	return values
+}
+
 func valuesToParams(values []reflect.Value) *Params {
 	params := &Params{Params: make([]interface{}, 0, len(values))}
+	values = flatten(values)
 	for _, v := range values {
 		i := v.Interface()
 		if v.Type().Implements(errTyp) {
@@ -90,7 +110,7 @@ func Serve(addr string, name string, fun interface{}) error {
 		paramStr := r.FormValue("params")
 		params := &Params{}
 		if err := json.Unmarshal([]byte(paramStr), params); err != nil {
-			w.Write(encode(newEncodingError(err)))
+			w.Write(encode(newDecodingError(addr, []byte(paramStr), err)))
 			return
 		}
 		if len(params.StackErr) > 0 {
@@ -145,6 +165,10 @@ func toInterfaces(params *Params) ([]interface{}, error) {
 func Call(name string, args ...interface{}) ([]interface{}, error) {
 	params := argsToParams(args...)
 	outs := call(name, params)
+	if len(outs.StackErr) > 0 {
+		return nil, outs
+	}
+	outs = valuesToParams(flatten(paramsToValues(outs)))
 	return toInterfaces(outs)
 }
 
