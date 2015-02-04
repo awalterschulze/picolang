@@ -1,7 +1,0 @@
-import map "github.com/awalterschulze/picolang/funcs.Map"
-import inc "github.com/awalterschulze/picolang/funcs.Inc"
-
-let a = inc(2)
-println(a)
-let c = map(inc, {2.3, 4})
-println(c)

@@ -1,8 +1,0 @@
-import map "github.com/awalterschulze/picolang/funcs.Map"
-import inc "github.com/awalterschulze/picolang/funcs.Inc"
-import add "github.com/awalterschulze/picolang/funcs.Add"
-import reduce "github.com/awalterschulze/picolang/funcs.Reduce"
-
-let b = map(inc, {1,2,3,4})
-let c = reduce(add,0,b)
-println(c)
